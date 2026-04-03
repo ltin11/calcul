@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Стратосферные системы | Атмосферный калькулятор ГОСТ 24631-81</title>
+    
+    <!-- Подключение внешних библиотек -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Подключение отдельного CSS файла -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen" style="background-color: #0a0a0a;">
+    <header class="border-b sticky top-0 z-50" style="background-color: #0a0a0a; border-color: #333333;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center">
+            <div class="airship-header">
+                <div class="airship-icon">
+                    <div class="airship-hull"></div>
+                    <div class="airship-hull-line-1"></div>
+                    <div class="airship-gondola"></div>
+                    <div class="airship-tail-vertical"></div>
+                </div>
+                <div class="airship-text">
+                    <span class="airship-line1">СТРАТОСФЕРНЫЕ</span>
+                    <span class="airship-line2">СИСТЕМЫ</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- ЛЕВАЯ КОЛОНКА - ВХОДНЫЕ ПАРАМЕТРЫ -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="rounded-xl tech-border p-5">
+                    <h2 class="text-lg font-semibold mb-5 flex items-center gap-2">
+                        <i data-lucide="sliders-horizontal" style="color: #ff6b1a;" class="w-5 h-5"></i>
+                        Входные параметры
+                    </h2>
+                    <form id="calcForm" class="space-y-4" onsubmit="event.preventDefault(); calculate();">
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color: #cccccc;">Время года</label>
+                            <select id="seasonSelect" class="tech-input w-full rounded-lg px-3 py-2 text-sm">
+                                <option value="summer">Лето</option>
+                                <option value="winter">Зима</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color: #cccccc;">Геометрическая высота</label>
+                            <div class="input-row">
+                                <input type="number" id="heightInput" step="any" min="-2000" max="80000" value="0" class="tech-input rounded-lg px-3 py-2 text-sm mono w-full">
+                                <div class="unit-toggle">
+                                    <button type="button" data-unit="m" class="unit-btn active">м</button>
+                                    <button type="button" data-unit="ft" class="unit-btn">фт</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color: #cccccc;">Температура</label>
+                            <div class="input-row">
+                                <input type="number" id="tempInput" step="any" value="15" class="tech-input rounded-lg px-3 py-2 text-sm mono w-full">
+                                <div class="unit-toggle">
+                                    <button type="button" id="tempUnitC" class="temp-unit active">°C</button>
+                                    <button type="button" id="tempUnitK" class="temp-unit">K</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color: #cccccc;">Географическая широта</label>
+                            <select id="latitudeSelect" class="tech-input w-full rounded-lg px-3 py-2 text-sm">
+                                <option value="15">15° (тропики)</option>
+                                <option value="30">30° (субтропики)</option>
+                                <option value="45" selected>45° (умеренные)</option>
+                                <option value="60">60° (субарктика)</option>
+                                <option value="80">80° (арктика)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color: #cccccc;">Давление</label>
+                            <div class="input-row">
+                                <input type="number" id="pressureInput" step="any" placeholder="auto" class="tech-input rounded-lg px-3 py-2 text-sm mono w-full">
+                                <div class="unit-toggle">
+                                    <button type="button" id="pressureUnitPa" class="pressure-unit active">Па</button>
+                                    <button type="button" id="pressureUnitMmHg" class="pressure-unit">мм рт.ст.</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color: #cccccc;">Плотность</label>
+                            <input type="number" id="densityInput" step="any" placeholder="auto" class="tech-input w-full rounded-lg px-3 py-2 text-sm mono">
+                        </div>
+                        <button type="submit" class="primary-btn w-full font-semibold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 mt-3 text-sm">
+                            <i data-lucide="play" class="w-4 h-4"></i>
+                            Рассчитать
+                        </button>
+                    </form>
+                </div>
+                <div class="rounded-xl p-5 text-sm" style="background-color: #111111; border: 1px solid #333333;">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2">
+                        <i data-lucide="info" style="color: #ff6b1a;" class="w-4 h-4"></i>
+                        Справка
+                    </h3>
+                    <ul class="space-y-2 text-xs leading-relaxed" style="color: #999999;">
+                        <li>• Расчёт по ГОСТ 24631-81 (справочные атмосферы)</li>
+                        <li>• Кубическая интерполяция по табличным данным</li>
+                        <li>• Учитываются широтные и сезонные вариации</li>
+                        <li>• Если давление или плотность не указаны — вычисляются автоматически</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ПРАВАЯ КОЛОНКА - РЕЗУЛЬТАТЫ РАСЧЁТА -->
+            <div class="lg:col-span-8">
+                <div class="rounded-xl tech-border p-6 h-full">
+                    <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
+                        <i data-lucide="activity" style="color: #ff6b1a;" class="w-5 h-5"></i>
+                        Результаты расчёта
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="param-item"><div class="param-label">Геопотенциальная высота</div><div><span id="resH" class="param-value">0</span><span class="param-unit">м</span></div></div>
+                        <div class="param-item"><div class="param-label">Ускорение свободного падения</div><div><span id="resG" class="param-value">9.806</span><span class="param-unit">м/с²</span></div></div>
+                        <div class="param-item"><div class="param-label">Концентрация частиц</div><div><span id="resConcentration" class="param-value">2.55e25</span><span class="param-unit">м⁻³</span></div></div>
+                        <div class="param-item"><div class="param-label">Средняя скорость частиц</div><div><span id="resMeanSpeed" class="param-value">467.2</span><span class="param-unit">м/с</span></div></div>
+                        <div class="param-item"><div class="param-label">Длина свободного пробега</div><div><span id="resMeanFreePath" class="param-value">6.63e-8</span><span class="param-unit">м</span></div></div>
+                        <div class="param-item"><div class="param-label">Частота соударений</div><div><span id="resCollisionFreq" class="param-value">7.04e9</span><span class="param-unit">с⁻¹</span></div></div>
+                        <div class="param-item"><div class="param-label">Динамическая вязкость</div><div><span id="resDynamicVisc" class="param-value">1.78e-5</span><span class="param-unit">Па·с</span></div></div>
+                        <div class="param-item"><div class="param-label">Кинематическая вязкость</div><div><span id="resKinematicVisc" class="param-value">1.45e-5</span><span class="param-unit">м²/с</span></div></div>
+                        <div class="param-item"><div class="param-label">Теплопроводность</div><div><span id="resThermalCond" class="param-value">2.54e-2</span><span class="param-unit">Вт/(м·К)</span></div></div>
+                        <div class="param-item"><div class="param-label">Масштаб высоты</div><div><span id="resScaleHeight" class="param-value">8.43</span><span class="param-unit">км</span></div></div>
+                    </div>
+                    
+                    <!-- Дополнительные окошки для отображения давления и плотности -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="param-item"><div class="param-label">Давление (расчётное/пользовательское)</div><div><span id="resPressureDisplay" class="param-value">101325</span><span class="param-unit">Па</span></div></div>
+                        <div class="param-item"><div class="param-label">Плотность (расчётная/пользовательская)</div><div><span id="resDensityDisplay" class="param-value">1.225</span><span class="param-unit">кг/м³</span></div></div>
+                    </div>
+                    
+                    <div class="rounded-lg border border-gray-700 p-5" style="background-color: #1a1a1a;">
+                        <div class="section-title"><i data-lucide="database" class="w-4 h-4" style="color: #ff6b1a;"></i><span>Постоянные величины (ГОСТ 4401-81)</span></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div class="param-item"><div class="param-label">Молярная масса</div><div><span class="param-value">28.964</span><span class="param-unit">кг/кмоль</span></div></div>
+                            <div class="param-item"><div class="param-label">Число Авогадро</div><div><span class="param-value">6.022×10²⁶</span><span class="param-unit">кмоль⁻¹</span></div></div>
+                            <div class="param-item"><div class="param-label">Газовая постоянная R*</div><div><span class="param-value">8314.32</span><span class="param-unit">Дж/(К·кмоль)</span></div></div>
+                            <div class="param-item"><div class="param-label">Газовая постоянная R</div><div><span class="param-value">287.05</span><span class="param-unit">Дж/(кг·К)</span></div></div>
+                            <div class="param-item"><div class="param-label">Показатель адиабаты γ</div><div><span class="param-value">1.4</span></div></div>
+                            <div class="param-item"><div class="param-label">Коэффициент S</div><div><span class="param-value">110.4</span><span class="param-unit">K</span></div></div>
+                            <div class="param-item"><div class="param-label">Коэффициент β_s</div><div><span class="param-value">1.458e-6</span></div></div>
+                            <div class="param-item"><div class="param-label">Диаметр молекул σ</div><div><span class="param-value">0.365e-9</span><span class="param-unit">м</span></div></div>
+                            <div class="param-item"><div class="param-label">Радиус Земли r</div><div><span class="param-value">6356767</span><span class="param-unit">м</span></div></div>
+                        </div>
+                    </div>
+                    <div id="errorMessage" class="hidden mt-4 p-4 rounded-lg text-sm flex items-center gap-2" style="background-color: rgba(255, 0, 0, 0.1); border: 1px solid #ff0000; color: #ff6666;">
+                        <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                        <span id="errorText"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СЕКЦИЯ ПАКЕТНОЙ ОБРАБОТКИ ДАННЫХ -->
+        <div class="rounded-xl tech-border p-6">
+            <h2 class="text-lg font-semibold mb-6 flex items-center gap-2"><i data-lucide="table" style="color: #ff6b1a;" class="w-5 h-5"></i>Пакетная обработка данных</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div><div id="dropZone" class="drop-zone"><input type="file" id="fileInput" accept=".csv,.xlsx,.xls" class="hidden"><i data-lucide="upload-cloud" class="w-12 h-12 mb-3" style="color: #666666;"></i><p class="text-sm font-medium mb-1" style="color: #cccccc;">Перетащите файл сюда</p><p class="text-xs mb-3" style="color: #666666;">или нажмите для выбора</p><p class="text-xs" style="color: #666666;">.csv, .xlsx, .xls</p></div><button id="downloadTemplate" class="mt-4 text-sm font-medium flex items-center gap-2" style="color: #ff6b1a;"><i data-lucide="download" class="w-4 h-4"></i>Скачать шаблон CSV</button></div>
+                <div><div id="downloadResultsZone" class="download-zone" onclick="downloadResults()"><i data-lucide="file-down" class="w-12 h-12 mb-3" style="color: #666666;"></i><p class="text-sm font-medium mb-1" style="color: #cccccc;">Нажмите, чтобы скачать файл</p><p class="text-xs mb-3" style="color: #666666;">с результатами текущего расчёта</p><p class="text-xs" style="color: #666666;">.csv</p></div></div>
+            </div>
+            <div class="mt-6"><div id="tableContainer" class="table-container hidden rounded-lg max-h-96 overflow-y-auto" style="border: 1px solid #333333;"><table id="resultsTable"><thead class="sticky top-0"><tr><th>Высота (м)</th><th>T (°C)</th><th>T (K)</th><th>P (Па)</th><th>ρ (кг/м³)</th><th>Статус</th> </thead><tbody id="tableBody"></tbody>   </div><div id="fileError" class="hidden mt-4 p-4 rounded-lg text-sm flex items-center gap-2" style="background-color: rgba(255, 0, 0, 0.1); border: 1px solid #ff0000; color: #ff6666;"><i data-lucide="alert-triangle" class="w-5 h-5"></i><span>Неподдерживаемый формат файла или ошибка в структуре данных</span></div></div>
+        </div>
+    </main>
+
+    <!-- Подключение отдельного JavaScript файла -->
+    <script src="script.js"></script>
+</body>
+</html>
