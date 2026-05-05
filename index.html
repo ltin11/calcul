@@ -331,13 +331,8 @@
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                stepSize: 10000
-                            },
-                            reverse: true,
-                            min: 0,
-                            max: 80000
+                            ticks: { color: '#ccc', stepSize: 10000 },
+                            reverse: true, min: 0, max: 80000
                         }
                     }
                 }
@@ -386,13 +381,8 @@
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                stepSize: 10000
-                            },
-                            reverse: true,
-                            min: 0,
-                            max: 80000
+                            ticks: { color: '#ccc', stepSize: 10000 },
+                            reverse: true, min: 0, max: 80000
                         }
                     }
                 }
@@ -409,15 +399,15 @@
             }
             
             if (densityChart) densityChart.destroy();
+            
             densityChart = new Chart(document.getElementById('densityChart'), {
                 type: 'line',
                 data: {
-                    labels: densValues,
                     datasets: [{
                         label: densLabel,
-                        data: heights,
-                        borderColor: '#ff6b1a',
-                        backgroundColor: 'rgba(255, 107, 26, 0.1)',
+                        data: heights.map((h, i) => ({ x: densValues[i], y: h })),
+                        borderColor: '#aaff44',
+                        backgroundColor: 'rgba(170, 255, 68, 0.1)',
                         fill: false,
                         tension: 0.3,
                         pointRadius: 0
@@ -435,13 +425,8 @@
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                stepSize: 10000
-                            },
-                            reverse: true,
-                            min: 0,
-                            max: 80000
+                            ticks: { color: '#ccc', stepSize: 10000 },
+                            reverse: true, min: 0, max: 80000
                         }
                     }
                 }
