@@ -163,16 +163,41 @@
                 Высотные профили
             </h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- График температуры -->
                 <div class="chart-container">
-                    <h3 class="text-sm font-medium mb-3 text-center">Температура T(h)</h3>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium">Температура T(h)</h3>
+                        <div class="unit-toggle" id="tempUnitToggle">
+                            <button data-unit="C" class="active">°C</button>
+                            <button data-unit="K">K</button>
+                        </div>
+                    </div>
                     <canvas id="tempChart" width="400" height="250"></canvas>
                 </div>
+                
+                <!-- График давления -->
                 <div class="chart-container">
-                    <h3 class="text-sm font-medium mb-3 text-center">Давление P(h)</h3>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium">Давление P(h)</h3>
+                        <div class="unit-toggle" id="pressUnitToggle">
+                            <button data-unit="Pa">Па</button>
+                            <button data-unit="hPa" class="active">гПа</button>
+                            <button data-unit="mmHg">мм рт.ст.</button>
+                            <button data-unit="mmH2O">мм вод.ст.</button>
+                        </div>
+                    </div>
                     <canvas id="pressureChart" width="400" height="250"></canvas>
                 </div>
+                
+                <!-- График плотности -->
                 <div class="chart-container">
-                    <h3 class="text-sm font-medium mb-3 text-center">Плотность ρ(h)</h3>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium">Плотность ρ(h)</h3>
+                        <div class="unit-toggle" id="densUnitToggle">
+                            <button data-unit="kgm3" class="active">кг/м³</button>
+                            <button data-unit="gcm3">г/см³</button>
+                        </div>
+                    </div>
                     <canvas id="densityChart" width="400" height="250"></canvas>
                 </div>
             </div>
@@ -184,7 +209,11 @@
         const CONST = {
             M_c: 28.964420, N_A: 6.022576e26, R_star: 8314.32, R: 287.05287,
             T_0: 273.15, r: 6356767, g_c: 9.80665, gamma: 1.4, S: 110.4,
-            beta_s: 1.458e-6, sigma: 0.365e-9, Pa_to_mmHg: 0.00750062
+            beta_s: 1.458e-6, sigma: 0.365e-9,
+            Pa_to_mmHg: 0.00750062,
+            Pa_to_mmH2O: 0.1019716,
+            Pa_to_hPa: 0.01,
+            Kg_to_g: 1000
         };
 
         // Атмосферные таблицы (твои данные)
@@ -240,7 +269,19 @@
 
         // Глобальные переменные для графиков
         let tempChart, pressureChart, densityChart;
+        // Текущие единицы измерения
+        let currentTempUnit = 'C';
+        let currentPressUnit = 'hPa';
+        let currentDensUnit = 'kgm3';
 
+        // Обновление активной кнопки
+        function updateUnitToggle(toggleId, unit) {
+            document.querySelectorAll(`#${toggleId} button`).forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.unit === unit);
+            });
+        }
+
+        // Основная функция построения
         function generateTableAndCharts() {
             const lat = parseFloat(document.getElementById('latitudeSelect').value);
             const season = document.getElementById('seasonSelect').value;
@@ -250,7 +291,7 @@
             const heights = [];
             for (let h = 0; h <= 80000; h += step) heights.push(h);
             
-            const data = heights.map(h => {
+            const rawData = heights.map(h => {
                 const { T: T_K, p: p_Pa } = getValueFromTable(table, h);
                 const rho = calculateDensity(p_Pa, T_K);
                 const sound = calculateSoundSpeed(T_K);
@@ -261,7 +302,7 @@
             // Обновляем таблицу
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            data.forEach(row => {
+            rawData.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="mono">${row.h.toFixed(0)}</td>
@@ -276,30 +317,180 @@
             });
             
             // Обновляем графики
-            const labels = data.map(d => d.h);
-            const tempData = data.map(d => d.T_C);
-            const pressureData = data.map(d => d.p_Pa);
-            const densityData = data.map(d => d.rho);
+            updateCharts(rawData);
+        }
+
+        function updateCharts(data) {
+            const heights = data.map(d => d.h);
+            
+            // --- График температуры ---
+            let tempValues, tempLabel;
+            if (currentTempUnit === 'C') {
+                tempValues = data.map(d => d.T_C);
+                tempLabel = 'Температура (°C)';
+            } else {
+                tempValues = data.map(d => d.T_K);
+                tempLabel = 'Температура (K)';
+            }
             
             if (tempChart) tempChart.destroy();
-            if (pressureChart) pressureChart.destroy();
-            if (densityChart) densityChart.destroy();
-            
             tempChart = new Chart(document.getElementById('tempChart'), {
-                type: 'line', data: { labels, datasets: [{ label: 'Температура (°C)', data: tempData, borderColor: '#ff6b1a', backgroundColor: 'rgba(255, 107, 26, 0.1)', fill: true, tension: 0.3, pointRadius: 0 }] },
-                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#ffffff' } } }, scales: { x: { title: { display: true, text: 'Высота (м)', color: '#999' }, ticks: { color: '#ccc' } }, y: { title: { display: true, text: '°C', color: '#999' }, ticks: { color: '#ccc' } } } }
+                type: 'line',
+                data: {
+                    labels: tempValues,
+                    datasets: [{
+                        label: tempLabel,
+                        data: heights,
+                        borderColor: '#ff6b1a',
+                        backgroundColor: 'rgba(255, 107, 26, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { labels: { color: '#ffffff' } } },
+                    scales: {
+                        x: { 
+                            title: { display: true, text: tempLabel, color: '#999' },
+                            ticks: { color: '#ccc' }
+                        },
+                        y: { 
+                            title: { display: true, text: 'Высота (м)', color: '#999' },
+                            ticks: { color: '#ccc' },
+                            reverse: true,
+                            min: 0,
+                            max: 80000
+                        }
+                    }
+                }
             });
+
+            // --- График давления ---
+            let pressValues, pressLabel;
+            if (currentPressUnit === 'Pa') {
+                pressValues = data.map(d => d.p_Pa);
+                pressLabel = 'Давление (Па)';
+            } else if (currentPressUnit === 'hPa') {
+                pressValues = data.map(d => d.p_Pa * CONST.Pa_to_hPa);
+                pressLabel = 'Давление (гПа)';
+            } else if (currentPressUnit === 'mmHg') {
+                pressValues = data.map(d => d.p_mmHg);
+                pressLabel = 'Давление (мм рт.ст.)';
+            } else {
+                pressValues = data.map(d => d.p_Pa * CONST.Pa_to_mmH2O);
+                pressLabel = 'Давление (мм вод.ст.)';
+            }
+            
+            if (pressureChart) pressureChart.destroy();
             pressureChart = new Chart(document.getElementById('pressureChart'), {
-                type: 'line', data: { labels, datasets: [{ label: 'Давление (Па)', data: pressureData, borderColor: '#ff6b1a', backgroundColor: 'rgba(255, 107, 26, 0.1)', fill: true, tension: 0.3, pointRadius: 0 }] },
-                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#ffffff' } } }, scales: { x: { title: { display: true, text: 'Высота (м)', color: '#999' }, ticks: { color: '#ccc' } }, y: { type: 'logarithmic', title: { display: true, text: 'Па (лог. шкала)', color: '#999' }, ticks: { color: '#ccc' } } } }
+                type: 'line',
+                data: {
+                    labels: pressValues,
+                    datasets: [{
+                        label: pressLabel,
+                        data: heights,
+                        borderColor: '#ff6b1a',
+                        backgroundColor: 'rgba(255, 107, 26, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { labels: { color: '#ffffff' } } },
+                    scales: {
+                        x: { 
+                            type: 'logarithmic',
+                            title: { display: true, text: pressLabel, color: '#999' },
+                            ticks: { color: '#ccc' }
+                        },
+                        y: { 
+                            title: { display: true, text: 'Высота (м)', color: '#999' },
+                            ticks: { color: '#ccc' },
+                            reverse: true,
+                            min: 0,
+                            max: 80000
+                        }
+                    }
+                }
             });
+
+            // --- График плотности ---
+            let densValues, densLabel;
+            if (currentDensUnit === 'kgm3') {
+                densValues = data.map(d => d.rho);
+                densLabel = 'Плотность (кг/м³)';
+            } else {
+                densValues = data.map(d => d.rho / CONST.Kg_to_g);
+                densLabel = 'Плотность (г/см³)';
+            }
+            
+            if (densityChart) densityChart.destroy();
             densityChart = new Chart(document.getElementById('densityChart'), {
-                type: 'line', data: { labels, datasets: [{ label: 'Плотность (кг/м³)', data: densityData, borderColor: '#ff6b1a', backgroundColor: 'rgba(255, 107, 26, 0.1)', fill: true, tension: 0.3, pointRadius: 0 }] },
-                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#ffffff' } } }, scales: { x: { title: { display: true, text: 'Высота (м)', color: '#999' }, ticks: { color: '#ccc' } }, y: { type: 'logarithmic', title: { display: true, text: 'кг/м³ (лог. шкала)', color: '#999' }, ticks: { color: '#ccc' } } } }
+                type: 'line',
+                data: {
+                    labels: densValues,
+                    datasets: [{
+                        label: densLabel,
+                        data: heights,
+                        borderColor: '#ff6b1a',
+                        backgroundColor: 'rgba(255, 107, 26, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { labels: { color: '#ffffff' } } },
+                    scales: {
+                        x: { 
+                            type: 'logarithmic',
+                            title: { display: true, text: densLabel, color: '#999' },
+                            ticks: { color: '#ccc' }
+                        },
+                        y: { 
+                            title: { display: true, text: 'Высота (м)', color: '#999' },
+                            ticks: { color: '#ccc' },
+                            reverse: true,
+                            min: 0,
+                            max: 80000
+                        }
+                    }
+                }
             });
         }
 
-        // Привязываем события
+        // Привязываем события к переключателям единиц
+        document.getElementById('tempUnitToggle').addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentTempUnit = e.target.dataset.unit;
+                updateUnitToggle('tempUnitToggle', currentTempUnit);
+                generateTableAndCharts();
+            }
+        });
+        document.getElementById('pressUnitToggle').addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentPressUnit = e.target.dataset.unit;
+                updateUnitToggle('pressUnitToggle', currentPressUnit);
+                generateTableAndCharts();
+            }
+        });
+        document.getElementById('densUnitToggle').addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentDensUnit = e.target.dataset.unit;
+                updateUnitToggle('densUnitToggle', currentDensUnit);
+                generateTableAndCharts();
+            }
+        });
+        
+        // Привязываем события формы
         document.getElementById('calcForm').addEventListener('submit', e => { e.preventDefault(); generateTableAndCharts(); });
         document.getElementById('latitudeSelect').addEventListener('change', generateTableAndCharts);
         document.getElementById('seasonSelect').addEventListener('change', generateTableAndCharts);
