@@ -24,8 +24,8 @@
         .unit-toggle button.active { background-color: #ff6b1a; color: #ffffff; box-shadow: 0 1px 3px rgba(255, 107, 26, 0.3); }
         .table-container { overflow-x: auto; max-height: 500px; overflow-y: auto; border-radius: 0.5rem; border: 1px solid #333333; }
         table { border-collapse: collapse; width: 100%; min-width: 800px; }
-        th { background-color: #1a1a1a; color: #ffffff; font-weight: 600; text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; border-bottom: 1px solid #333333; position: sticky; top: 0; z-index: 10; }
-        td { padding: 0.75rem 1rem; border-bottom: 1px solid #222222; font-size: 0.875rem; color: #cccccc; font-family: 'JetBrains Mono', monospace; }
+        th { background-color: #1a1a1a; color: #ffffff; font-weight: 600; text-align: center; padding: 0.75rem 1rem; font-size: 0.75rem; border-bottom: 1px solid #333333; position: sticky; top: 0; z-index: 10; }
+        td { padding: 0.75rem 1rem; border-bottom: 1px solid #222222; font-size: 0.875rem; color: #cccccc; font-family: 'JetBrains Mono', monospace; text-align: center; }
         tr:hover { background-color: #1a1a1a; }
         .chart-container { background-color: #111111; border-radius: 0.5rem; padding: 1rem; border: 1px solid #333333; }
         canvas { max-height: 300px; width: 100% !important; }
@@ -127,16 +127,33 @@
                             <thead>
                                 <tr>
                                     <th>Высота (м)</th>
-                                    <th>T (°C)</th>
-                                    <th>T (K)</th>
-                                    <th>P (Па)</th>
-                                    <th>P (мм рт.ст.)</th>
-                                    <th>ρ (кг/м³)</th>
+                                    <th>
+                                        Температура
+                                        <div class="unit-toggle" id="tempUnitToggle">
+                                            <button data-unit="C" class="active">°C</button>
+                                            <button data-unit="K">K</button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        Давление
+                                        <div class="unit-toggle" id="pressUnitToggle">
+                                            <button data-unit="hPa" class="active">гПа</button>
+                                            <button data-unit="mmHg">мм рт.ст.</button>
+                                            <button data-unit="mmH2O">мм вод.ст.</button>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        Плотность
+                                        <div class="unit-toggle" id="densUnitToggle">
+                                            <button data-unit="kgm3" class="active">кг/м³</button>
+                                            <button data-unit="gcm3">г/см³</button>
+                                        </div>
+                                    </th>
                                     <th>Скорость звука (м/с)</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
-                                <tr><td colspan="7" class="text-center">Загрузка данных...</td></tr>
+                                <tr><td colspan="5" class="text-center">Загрузка данных...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -151,37 +168,17 @@
             </h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="chart-container">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-medium">Температура T(h)</h3>
-                        <div class="unit-toggle" id="tempUnitToggle">
-                            <button data-unit="C" class="active">°C</button>
-                            <button data-unit="K">K</button>
-                        </div>
-                    </div>
+                    <h3 class="text-sm font-medium mb-3 text-center">Температура T(h)</h3>
                     <canvas id="tempChart" width="400" height="250"></canvas>
                 </div>
                 
                 <div class="chart-container">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-medium">Давление P(h)</h3>
-                        <div class="unit-toggle" id="pressUnitToggle">
-                            <button data-unit="Pa">Па</button>
-                            <button data-unit="hPa" class="active">гПа</button>
-                            <button data-unit="mmHg">мм рт.ст.</button>
-                            <button data-unit="mmH2O">мм вод.ст.</button>
-                        </div>
-                    </div>
+                    <h3 class="text-sm font-medium mb-3 text-center">Давление P(h)</h3>
                     <canvas id="pressureChart" width="400" height="250"></canvas>
                 </div>
                 
                 <div class="chart-container">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-medium">Плотность ρ(h)</h3>
-                        <div class="unit-toggle" id="densUnitToggle">
-                            <button data-unit="kgm3" class="active">кг/м³</button>
-                            <button data-unit="gcm3">г/см³</button>
-                        </div>
-                    </div>
+                    <h3 class="text-sm font-medium mb-3 text-center">Плотность ρ(h)</h3>
                     <canvas id="densityChart" width="400" height="250"></canvas>
                 </div>
             </div>
@@ -270,7 +267,10 @@
                 const rho = calculateDensity(p_Pa, T_K);
                 const sound = calculateSoundSpeed(T_K);
                 const p_mmHg = p_Pa * CONST.Pa_to_mmHg;
-                return { h, T_C: T_K - CONST.T_0, T_K, p_Pa, p_mmHg, rho, sound };
+                const p_mmH2O = p_Pa * CONST.Pa_to_mmH2O;
+                const p_hPa = p_Pa * CONST.Pa_to_hPa;
+                const rho_gcm3 = rho / CONST.Kg_to_g;
+                return { h, T_C: T_K - CONST.T_0, T_K, p_Pa, p_hPa, p_mmHg, p_mmH2O, rho, rho_gcm3, sound };
             });
             
             const tbody = document.getElementById('tableBody');
@@ -279,11 +279,9 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="mono">${row.h.toFixed(0)}</td>
-                    <td class="mono">${row.T_C.toFixed(1)}</td>
-                    <td class="mono">${row.T_K.toFixed(2)}</td>
-                    <td class="mono">${row.p_Pa.toFixed(0)}</td>
-                    <td class="mono">${row.p_mmHg.toFixed(2)}</td>
-                    <td class="mono">${row.rho.toFixed(4)}</td>
+                    <td class="mono">${currentTempUnit === 'C' ? row.T_C.toFixed(1) : row.T_K.toFixed(2)}</td>
+                    <td class="mono">${currentPressUnit === 'hPa' ? row.p_hPa.toFixed(2) : currentPressUnit === 'mmHg' ? row.p_mmHg.toFixed(2) : row.p_mmH2O.toFixed(2)}</td>
+                    <td class="mono">${currentDensUnit === 'kgm3' ? row.rho.toFixed(4) : row.rho_gcm3.toExponential(3)}</td>
                     <td class="mono">${row.sound.toFixed(1)}</td>
                 `;
                 tbody.appendChild(tr);
@@ -295,7 +293,7 @@
         function updateCharts(data) {
             const heights = data.map(d => d.h);
             
-            // --- График температуры ---
+            // --- График температуры (СТАНДАРТНЫЙ ТУЛТИП) ---
             let tempValues, tempLabel;
             if (currentTempUnit === 'C') {
                 tempValues = data.map(d => d.T_C);
@@ -323,15 +321,24 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    plugins: { legend: { labels: { color: '#ffffff' } } },
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } }
+                    },
                     scales: {
                         x: { 
                             title: { display: true, text: tempLabel, color: '#999' },
-                            ticks: { color: '#ccc' }
+                            ticks: { 
+                                color: '#ccc',
+                                maxTicksLimit: 8
+                            }
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { color: '#ccc', stepSize: 10000 },
+                            ticks: { 
+                                color: '#ccc',
+                                stepSize: 20000,
+                                autoSkip: false
+                            },
                             reverse: true, min: 0, max: 80000
                         }
                     }
@@ -344,13 +351,13 @@
                 pressValues = data.map(d => d.p_Pa);
                 pressLabel = 'Давление (Па)';
             } else if (currentPressUnit === 'hPa') {
-                pressValues = data.map(d => d.p_Pa * CONST.Pa_to_hPa);
+                pressValues = data.map(d => d.p_hPa);
                 pressLabel = 'Давление (гПа)';
             } else if (currentPressUnit === 'mmHg') {
                 pressValues = data.map(d => d.p_mmHg);
                 pressLabel = 'Давление (мм рт.ст.)';
             } else {
-                pressValues = data.map(d => d.p_Pa * CONST.Pa_to_mmH2O);
+                pressValues = data.map(d => d.p_mmH2O);
                 pressLabel = 'Давление (мм вод.ст.)';
             }
             
@@ -358,10 +365,9 @@
             pressureChart = new Chart(document.getElementById('pressureChart'), {
                 type: 'line',
                 data: {
-                    labels: pressValues,
                     datasets: [{
                         label: pressLabel,
-                        data: heights,
+                        data: data.map((d, i) => ({ x: pressValues[i], y: d.h })),
                         borderColor: '#ff6b1a',
                         backgroundColor: 'rgba(255, 107, 26, 0.1)',
                         fill: false,
@@ -372,7 +378,16 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    plugins: { legend: { labels: { color: '#ffffff' } } },
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Высота: ' + context.parsed.y + ' м | ' + context.dataset.label + ': ' + context.parsed.x;
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         x: { 
                             type: 'logarithmic',
@@ -381,7 +396,11 @@
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { color: '#ccc', stepSize: 10000 },
+                            ticks: { 
+                                color: '#ccc',
+                                stepSize: 10000,
+                                autoSkip: false
+                            },
                             reverse: true, min: 0, max: 80000
                         }
                     }
@@ -394,7 +413,7 @@
                 densValues = data.map(d => d.rho);
                 densLabel = 'Плотность (кг/м³)';
             } else {
-                densValues = data.map(d => d.rho / CONST.Kg_to_g);
+                densValues = data.map(d => d.rho_gcm3);
                 densLabel = 'Плотность (г/см³)';
             }
             
@@ -405,9 +424,9 @@
                 data: {
                     datasets: [{
                         label: densLabel,
-                        data: heights.map((h, i) => ({ x: densValues[i], y: h })),
-                        borderColor: '#aaff44',
-                        backgroundColor: 'rgba(170, 255, 68, 0.1)',
+                        data: data.map((d, i) => ({ x: densValues[i], y: d.h })),
+                        borderColor: '#ff6b1a',
+                        backgroundColor: 'rgba(255, 107, 26, 0.1)',
                         fill: false,
                         tension: 0.3,
                         pointRadius: 0
@@ -416,7 +435,16 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    plugins: { legend: { labels: { color: '#ffffff' } } },
+                    plugins: {
+                        legend: { labels: { color: '#ffffff' } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Высота: ' + context.parsed.y + ' м | ' + context.dataset.label + ': ' + context.parsed.x;
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         x: { 
                             type: 'logarithmic',
@@ -425,7 +453,11 @@
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { color: '#ccc', stepSize: 10000 },
+                            ticks: { 
+                                color: '#ccc',
+                                stepSize: 10000,
+                                autoSkip: false
+                            },
                             reverse: true, min: 0, max: 80000
                         }
                     }
