@@ -19,16 +19,16 @@
         .tech-input:focus { outline: none; border-color: #ff6b1a; box-shadow: 0 0 0 3px rgba(255, 107, 26, 0.2); }
         .primary-btn { background-color: #ff6b1a; transition: all 0.2s; color: #ffffff; }
         .primary-btn:hover { background-color: #e05a0f; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(255, 107, 26, 0.3); }
-        .unit-toggle { background-color: #1a1a1a; border: 1px solid #333333; border-radius: 0.5rem; padding: 0.125rem; display: inline-flex; gap: 0.125rem; flex-shrink: 0; }
-        .unit-toggle button { transition: all 0.2s; color: #999999; font-size: 0.7rem; padding: 0.375rem 0.625rem; border-radius: 0.375rem; cursor: pointer; background: transparent; border: none; font-weight: 500; }
+        .unit-toggle { background-color: #1a1a1a; border: 1px solid #333333; border-radius: 0.3rem; padding: 0.1rem; display: inline-flex; gap: 0.1rem; flex-shrink: 0; flex-wrap: wrap; justify-content: center; }
+        .unit-toggle button { transition: all 0.2s; color: #999999; font-size: 0.55rem; padding: 0.2rem 0.35rem; border-radius: 0.25rem; cursor: pointer; background: transparent; border: none; font-weight: 500; white-space: nowrap; }
         .unit-toggle button.active { background-color: #ff6b1a; color: #ffffff; box-shadow: 0 1px 3px rgba(255, 107, 26, 0.3); }
         .table-container { overflow-x: auto; max-height: 500px; overflow-y: auto; border-radius: 0.5rem; border: 1px solid #333333; }
-        table { border-collapse: collapse; width: 100%; min-width: 800px; }
-        th { background-color: #1a1a1a; color: #ffffff; font-weight: 600; text-align: center; padding: 0.75rem 1rem; font-size: 0.75rem; border-bottom: 1px solid #333333; position: sticky; top: 0; z-index: 10; }
-        td { padding: 0.75rem 1rem; border-bottom: 1px solid #222222; font-size: 0.875rem; color: #cccccc; font-family: 'JetBrains Mono', monospace; text-align: center; }
+        table { border-collapse: collapse; width: 100%; }
+        th { background-color: #1a1a1a; color: #ffffff; font-weight: 600; text-align: center; padding: 0.4rem 0.35rem; font-size: 0.65rem; border-bottom: 1px solid #333333; position: sticky; top: 0; z-index: 10; white-space: nowrap; }
+        td { padding: 0.35rem 0.35rem; border-bottom: 1px solid #222222; font-size: 0.7rem; color: #cccccc; font-family: 'JetBrains Mono', monospace; text-align: center; white-space: nowrap; }
         tr:hover { background-color: #1a1a1a; }
         .chart-container { background-color: #111111; border-radius: 0.5rem; padding: 1rem; border: 1px solid #333333; }
-        canvas { max-height: 300px; width: 100% !important; }
+        canvas { width: 100% !important; height: 500px !important; }
         .airship-header { display: flex; align-items: center; gap: 15px; }
         .airship-icon { width: 90px; height: 55px; position: relative; animation: float 6s ease-in-out infinite; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)); }
         .airship-hull { position: absolute; width: 80px; height: 40px; border: 2px solid rgba(255, 255, 255, 0.95); border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%; top: 5px; left: 5px; background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); box-shadow: 0 0 20px rgba(255, 255, 255, 0.15); }
@@ -37,10 +37,12 @@
         @keyframes float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-10px) rotate(1.5deg); } }
         .airship-line1 { font-size: 1.6rem; font-weight: 300; letter-spacing: 4px; }
         .airship-line2 { font-size: 2rem; font-weight: 300; letter-spacing: 4px; text-shadow: 0 0 15px rgba(255, 107, 26, 0.3); }
+        .header-unit-row { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
         @media (max-width: 768px) {
             .airship-line1 { font-size: 1rem; }
             .airship-line2 { font-size: 1.2rem; }
-            th, td { padding: 0.5rem; font-size: 0.7rem; }
+            th, td { padding: 0.25rem; font-size: 0.6rem; }
+            canvas { height: 350px !important; }
         }
     </style>
 </head>
@@ -128,28 +130,39 @@
                                 <tr>
                                     <th>Высота (м)</th>
                                     <th>
-                                        Температура
-                                        <div class="unit-toggle" id="tempUnitToggle">
-                                            <button data-unit="C" class="active">°C</button>
-                                            <button data-unit="K">K</button>
+                                        <div class="header-unit-row">
+                                            <span>Температура</span>
+                                            <div class="unit-toggle" id="tempUnitToggle">
+                                                <button data-unit="C" class="active">°C</button>
+                                                <button data-unit="K">K</button>
+                                            </div>
                                         </div>
                                     </th>
                                     <th>
-                                        Давление
-                                        <div class="unit-toggle" id="pressUnitToggle">
-                                            <button data-unit="hPa" class="active">гПа</button>
-                                            <button data-unit="mmHg">мм рт.ст.</button>
-                                            <button data-unit="mmH2O">мм вод.ст.</button>
+                                        <div class="header-unit-row">
+                                            <span>Давление</span>
+                                            <div class="unit-toggle" id="pressUnitToggle">
+                                                <button data-unit="hPa" class="active">гПа</button>
+                                                <button data-unit="mmHg">мм рт.ст.</button>
+                                                <button data-unit="mmH2O">мм вод.ст.</button>
+                                            </div>
                                         </div>
                                     </th>
                                     <th>
-                                        Плотность
-                                        <div class="unit-toggle" id="densUnitToggle">
-                                            <button data-unit="kgm3" class="active">кг/м³</button>
-                                            <button data-unit="gcm3">г/см³</button>
+                                        <div class="header-unit-row">
+                                            <span>Плотность</span>
+                                            <div class="unit-toggle" id="densUnitToggle">
+                                                <button data-unit="kgm3" class="active">кг/м³</button>
+                                                <button data-unit="gcm3">г/см³</button>
+                                            </div>
                                         </div>
                                     </th>
-                                    <th>Скорость звука (м/с)</th>
+                                    <th>
+                                        <div class="header-unit-row">
+                                            <span>Скорость звука</span>
+                                            <span>(м/с)</span>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
@@ -166,20 +179,21 @@
                 <i data-lucide="line-chart" style="color: #ff6b1a;" class="w-5 h-5"></i>
                 Высотные профили
             </h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="chart-container">
                     <h3 class="text-sm font-medium mb-3 text-center">Температура T(h)</h3>
-                    <canvas id="tempChart" width="400" height="250"></canvas>
+                    <canvas id="tempChart" width="600" height="500"></canvas>
                 </div>
                 
                 <div class="chart-container">
                     <h3 class="text-sm font-medium mb-3 text-center">Давление P(h)</h3>
-                    <canvas id="pressureChart" width="400" height="250"></canvas>
+                    <canvas id="pressureChart" width="600" height="500"></canvas>
                 </div>
-                
-                <div class="chart-container">
+            </div>
+            <div class="flex justify-center">
+                <div class="chart-container w-full lg:w-1/2">
                     <h3 class="text-sm font-medium mb-3 text-center">Плотность ρ(h)</h3>
-                    <canvas id="densityChart" width="400" height="250"></canvas>
+                    <canvas id="densityChart" width="600" height="500"></canvas>
                 </div>
             </div>
         </div>
@@ -191,6 +205,23 @@
             Pa_to_mmHg: 0.00750062, Pa_to_mmH2O: 0.1019716,
             Pa_to_hPa: 0.01, Kg_to_g: 1000
         };
+
+        // Функция для красивого отображения больших чисел (научный формат)
+        function formatScientific(value, digits = 2) {
+            if (value === 0) return '0';
+            if (Math.abs(value) >= 10000 || (Math.abs(value) < 0.001 && Math.abs(value) > 0)) {
+                const exp = Math.floor(Math.log10(Math.abs(value)));
+                const mantissa = value / Math.pow(10, exp);
+                if (Math.abs(mantissa - Math.round(mantissa)) < 0.001) {
+                    return `${Math.round(mantissa)}×10${exp > 0 ? '⁺' : '⁻'}${Math.abs(exp)}`;
+                }
+                return `${mantissa.toFixed(digits)}×10${exp > 0 ? '⁺' : '⁻'}${Math.abs(exp)}`;
+            }
+            if (Math.abs(value) >= 1000) return value.toFixed(0);
+            if (Math.abs(value) >= 100) return value.toFixed(1);
+            if (Math.abs(value) >= 1) return value.toFixed(2);
+            return value.toFixed(3);
+        }
 
         const ATMOSPHERE_DATA = {
             15: { annual: [{h:0,T:299.65,p:101325},{h:1000,T:293.65,p:90328},{h:2000,T:287.68,p:80384},{h:3000,T:283.65,p:71320},{h:4000,T:276.98,p:63163},{h:5000,T:270.30,p:55875},{h:6000,T:263.63,p:49100},{h:7000,T:256.96,p:43085},{h:8000,T:250.29,p:37679},{h:9000,T:243.63,p:32834},{h:10000,T:236.96,p:28503},{h:12000,T:223.64,p:21221},{h:14000,T:210.33,p:15518},{h:16000,T:197.02,p:11120},{h:18000,T:198.78,p:7864},{h:20000,T:206.71,p:5629},{h:22000,T:214.64,p:4082},{h:24000,T:218.86,p:2988},{h:26000,T:222.82,p:2199},{h:28000,T:226.77,p:1628},{h:30000,T:230.73,p:1212},{h:32000,T:236.09,p:907.5},{h:34000,T:241.62,p:684.2},{h:36000,T:247.15,p:519.2},{h:38000,T:252.67,p:396.5},{h:40000,T:258.19,p:304.6},{h:42000,T:262.73,p:235.2},{h:44000,T:267.06,p:182.5},{h:46000,T:271.39,p:142.2},{h:48000,T:272.35,p:111.1},{h:50000,T:272.35,p:86.84},{h:52000,T:271.25,p:67.87},{h:54000,T:266.54,p:52.89},{h:56000,T:261.01,p:41.03},{h:58000,T:255.13,p:31.65},{h:60000,T:249.25,p:24.28},{h:62000,T:242.75,p:18.50},{h:64000,T:235.91,p:13.99},{h:66000,T:229.06,p:10.49},{h:68000,T:222.79,p:7.812},{h:70000,T:216.93,p:5.768},{h:72000,T:211.07,p:4.224},{h:74000,T:205.22,p:3.067},{h:76000,T:203.23,p:2.214},{h:78000,T:201.28,p:1.593},{h:80000,T:199.33,p:1.143}] },
@@ -270,7 +301,7 @@
                 const p_mmH2O = p_Pa * CONST.Pa_to_mmH2O;
                 const p_hPa = p_Pa * CONST.Pa_to_hPa;
                 const rho_gcm3 = rho / CONST.Kg_to_g;
-                return { h, T_C: T_K - CONST.T_0, T_K, p_Pa, p_hPa, p_mmHg, p_mmH2O, rho, rho_gcm3, sound };
+                return { h, T_C: T_K - CONST.T_0, T_K, p_hPa, p_mmHg, p_mmH2O, rho, rho_gcm3, sound };
             });
             
             const tbody = document.getElementById('tableBody');
@@ -291,174 +322,233 @@
         }
 
         function updateCharts(data) {
-            const heights = data.map(d => d.h);
-            
-            // --- График температуры (СТАНДАРТНЫЙ ТУЛТИП) ---
-            let tempValues, tempLabel;
+            // --- ГРАФИК ТЕМПЕРАТУРЫ (цифры нормальные, не лезут) ---
+            let tempValues, tempLabel, tempXTitle;
             if (currentTempUnit === 'C') {
                 tempValues = data.map(d => d.T_C);
-                tempLabel = 'Температура (°C)';
+                tempLabel = 'Температура, °C';
+                tempXTitle = 'Температура, °C';
             } else {
                 tempValues = data.map(d => d.T_K);
-                tempLabel = 'Температура (K)';
+                tempLabel = 'Температура, K';
+                tempXTitle = 'Температура, K';
             }
             
             if (tempChart) tempChart.destroy();
             tempChart = new Chart(document.getElementById('tempChart'), {
                 type: 'line',
                 data: {
-                    labels: tempValues,
+                    labels: tempValues.map(v => v.toFixed(1)),
                     datasets: [{
                         label: tempLabel,
-                        data: heights,
+                        data: data.map(d => d.h),
                         borderColor: '#ff6b1a',
                         backgroundColor: 'rgba(255, 107, 26, 0.1)',
+                        borderWidth: 2,
                         fill: false,
                         tension: 0.3,
-                        pointRadius: 0
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#ff6b1a',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'nearest', axis: 'x', intersect: true },
                     plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.label} | Высота: ${context.parsed.y.toFixed(0)} м`;
+                                }
+                            },
+                            backgroundColor: 'rgba(0,0,0,0.85)',
+                            titleColor: '#ff6b1a',
+                            bodyColor: '#fff'
+                        },
                         legend: { labels: { color: '#ffffff' } }
                     },
                     scales: {
                         x: { 
-                            title: { display: true, text: tempLabel, color: '#999' },
+                            title: { display: true, text: tempXTitle, color: '#999' },
                             ticks: { 
                                 color: '#ccc',
-                                maxTicksLimit: 8
-                            }
+                                autoSkip: true,
+                                maxTicksLimit: 8,
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
                             ticks: { 
                                 color: '#ccc',
-                                stepSize: 20000,
-                                autoSkip: false
+                                stepSize: 10000,
+                                callback: function(val) { return val.toFixed(0); }
                             },
-                            reverse: true, min: 0, max: 80000
+                            min: 0,
+                            max: 80000,
+                            grid: { color: 'rgba(255,255,255,0.05)' }
                         }
                     }
                 }
             });
 
-            // --- График давления ---
-            let pressValues, pressLabel;
-            if (currentPressUnit === 'Pa') {
-                pressValues = data.map(d => d.p_Pa);
-                pressLabel = 'Давление (Па)';
-            } else if (currentPressUnit === 'hPa') {
+            // --- ГРАФИК ДАВЛЕНИЯ (красивый научный формат) ---
+            let pressValues, pressLabel, pressUnitForTitle;
+            if (currentPressUnit === 'hPa') {
                 pressValues = data.map(d => d.p_hPa);
-                pressLabel = 'Давление (гПа)';
+                pressLabel = 'Давление, гПа';
+                pressUnitForTitle = 'гПа';
             } else if (currentPressUnit === 'mmHg') {
                 pressValues = data.map(d => d.p_mmHg);
-                pressLabel = 'Давление (мм рт.ст.)';
+                pressLabel = 'Давление, мм рт.ст.';
+                pressUnitForTitle = 'мм рт.ст.';
             } else {
                 pressValues = data.map(d => d.p_mmH2O);
-                pressLabel = 'Давление (мм вод.ст.)';
+                pressLabel = 'Давление, мм вод.ст.';
+                pressUnitForTitle = 'мм вод.ст.';
             }
             
             if (pressureChart) pressureChart.destroy();
             pressureChart = new Chart(document.getElementById('pressureChart'), {
                 type: 'line',
                 data: {
+                    labels: pressValues,
                     datasets: [{
                         label: pressLabel,
-                        data: data.map((d, i) => ({ x: pressValues[i], y: d.h })),
+                        data: data.map(d => d.h),
                         borderColor: '#ff6b1a',
                         backgroundColor: 'rgba(255, 107, 26, 0.1)',
+                        borderWidth: 2,
                         fill: false,
                         tension: 0.3,
-                        pointRadius: 0
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#ff6b1a',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#ffffff' } },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return 'Высота: ' + context.parsed.y + ' м | ' + context.dataset.label + ': ' + context.parsed.x;
+                                    const val = context.label;
+                                    return `${context.dataset.label}: ${formatScientific(parseFloat(val), 2)} | Высота: ${context.parsed.y.toFixed(0)} м`;
                                 }
-                            }
-                        }
+                            },
+                            backgroundColor: 'rgba(0,0,0,0.85)',
+                            titleColor: '#ff6b1a',
+                            bodyColor: '#fff'
+                        },
+                        legend: { labels: { color: '#ffffff' } }
                     },
                     scales: {
                         x: { 
                             type: 'logarithmic',
                             title: { display: true, text: pressLabel, color: '#999' },
-                            ticks: { color: '#ccc' }
+                            ticks: { 
+                                color: '#ccc',
+                                callback: function(value) {
+                                    return formatScientific(value, 2);
+                                },
+                                maxTicksLimit: 8
+                            },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
                             ticks: { 
                                 color: '#ccc',
                                 stepSize: 10000,
-                                autoSkip: false
+                                callback: function(val) { return val.toFixed(0); }
                             },
-                            reverse: true, min: 0, max: 80000
+                            min: 0,
+                            max: 80000,
+                            grid: { color: 'rgba(255,255,255,0.05)' }
                         }
                     }
                 }
             });
 
-            // --- График плотности ---
+            // --- ГРАФИК ПЛОТНОСТИ (красивый научный формат) ---
             let densValues, densLabel;
             if (currentDensUnit === 'kgm3') {
                 densValues = data.map(d => d.rho);
-                densLabel = 'Плотность (кг/м³)';
+                densLabel = 'Плотность, кг/м³';
             } else {
                 densValues = data.map(d => d.rho_gcm3);
-                densLabel = 'Плотность (г/см³)';
+                densLabel = 'Плотность, г/см³';
             }
             
             if (densityChart) densityChart.destroy();
-            
             densityChart = new Chart(document.getElementById('densityChart'), {
                 type: 'line',
                 data: {
+                    labels: densValues,
                     datasets: [{
                         label: densLabel,
-                        data: data.map((d, i) => ({ x: densValues[i], y: d.h })),
+                        data: data.map(d => d.h),
                         borderColor: '#ff6b1a',
                         backgroundColor: 'rgba(255, 107, 26, 0.1)',
+                        borderWidth: 2,
                         fill: false,
                         tension: 0.3,
-                        pointRadius: 0
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#ff6b1a',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#ffffff' } },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return 'Высота: ' + context.parsed.y + ' м | ' + context.dataset.label + ': ' + context.parsed.x;
+                                    const val = context.label;
+                                    return `${context.dataset.label}: ${formatScientific(parseFloat(val), 3)} | Высота: ${context.parsed.y.toFixed(0)} м`;
                                 }
-                            }
-                        }
+                            },
+                            backgroundColor: 'rgba(0,0,0,0.85)',
+                            titleColor: '#ff6b1a',
+                            bodyColor: '#fff'
+                        },
+                        legend: { labels: { color: '#ffffff' } }
                     },
                     scales: {
                         x: { 
                             type: 'logarithmic',
                             title: { display: true, text: densLabel, color: '#999' },
-                            ticks: { color: '#ccc' }
+                            ticks: { 
+                                color: '#ccc',
+                                callback: function(value) {
+                                    return formatScientific(value, 3);
+                                },
+                                maxTicksLimit: 8
+                            },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
                         },
                         y: { 
                             title: { display: true, text: 'Высота (м)', color: '#999' },
                             ticks: { 
                                 color: '#ccc',
                                 stepSize: 10000,
-                                autoSkip: false
+                                callback: function(val) { return val.toFixed(0); }
                             },
-                            reverse: true, min: 0, max: 80000
+                            min: 0,
+                            max: 80000,
+                            grid: { color: 'rgba(255,255,255,0.05)' }
                         }
                     }
                 }
