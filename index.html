@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Стратосферные системы | Атмосферный калькулятор ГОСТ 24631-81</title>
     
+    <!-- Подключаем Cormorant Garamond Light -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -29,18 +32,41 @@
         tr:hover { background-color: #1a1a1a; }
         .chart-container { background-color: #111111; border-radius: 0.5rem; padding: 1rem; border: 1px solid #333333; }
         canvas { width: 100% !important; height: 500px !important; }
-        .airship-header { display: flex; align-items: center; gap: 15px; }
-        .airship-icon { width: 90px; height: 55px; position: relative; animation: float 6s ease-in-out infinite; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2)); }
-        .airship-hull { position: absolute; width: 80px; height: 40px; border: 2px solid rgba(255, 255, 255, 0.95); border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%; top: 5px; left: 5px; background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); box-shadow: 0 0 20px rgba(255, 255, 255, 0.15); }
-        .airship-gondola { position: absolute; width: 26px; height: 18px; border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 6px 6px 10px 10px; bottom: -4px; left: 28px; background: rgba(255, 255, 255, 0.05); }
-        .airship-tail-vertical { position: absolute; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid rgba(255, 255, 255, 0.8); right: -2px; top: 8px; transform: rotate(5deg); }
-        @keyframes float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-10px) rotate(1.5deg); } }
-        .airship-line1 { font-size: 1.6rem; font-weight: 300; letter-spacing: 4px; }
-        .airship-line2 { font-size: 2rem; font-weight: 300; letter-spacing: 4px; text-shadow: 0 0 15px rgba(255, 107, 26, 0.3); }
+        
+        /* Логотип */
+        .logo-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-lines {
+            width: 280px;
+            height: auto;
+        }
+        .logo-text {
+            color: #fff;
+            text-align: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            line-height: 0.88;
+            text-transform: uppercase;
+        }
+        .logo-top {
+            font-size: 1.6rem;
+            letter-spacing: 0.3rem;
+        }
+        .logo-bottom {
+            font-size: 1.9rem;
+            letter-spacing: 0.35rem;
+        }
+        
         .header-unit-row { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+        
         @media (max-width: 768px) {
-            .airship-line1 { font-size: 1rem; }
-            .airship-line2 { font-size: 1.2rem; }
+            .logo-lines { width: 180px; }
+            .logo-top { font-size: 1rem; letter-spacing: 0.15rem; }
+            .logo-bottom { font-size: 1.2rem; letter-spacing: 0.2rem; }
             th, td { padding: 0.25rem; font-size: 0.6rem; }
             canvas { height: 350px !important; }
         }
@@ -48,16 +74,17 @@
 </head>
 <body class="min-h-screen" style="background-color: #0a0a0a;">
     <header class="border-b sticky top-0 z-50" style="background-color: #0a0a0a; border-color: #333333;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="airship-header">
-                <div class="airship-icon">
-                    <div class="airship-hull"></div>
-                    <div class="airship-gondola"></div>
-                    <div class="airship-tail-vertical"></div>
-                </div>
-                <div class="airship-text">
-                    <span class="airship-line1">СТРАТОСФЕРНЫЕ</span>
-                    <span class="airship-line2">СИСТЕМЫ</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-28 flex items-center justify-center">
+            <div class="logo-wrapper">
+                <!-- SVG линии (дирижабль) -->
+                <svg class="logo-lines" viewBox="0 0 1600 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 120 C260 0 700 0 1020 45 C1250 78 1420 85 1580 20" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M20 120 C350 -10 900 10 1220 85 C1380 115 1490 122 1580 124" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                </svg>
+                <!-- Текст -->
+                <div class="logo-text">
+                    <div class="logo-top">СТРАТОСФЕРНЫЕ</div>
+                    <div class="logo-bottom">СИСТЕМЫ</div>
                 </div>
             </div>
         </div>
@@ -145,6 +172,7 @@
                                                 <button data-unit="hPa" class="active">гПа</button>
                                                 <button data-unit="mmHg">мм рт.ст.</button>
                                                 <button data-unit="mmH2O">мм вод.ст.</button>
+                                                <button data-unit="Pa">Па</button>
                                             </div>
                                         </div>
                                     </th>
@@ -206,7 +234,7 @@
             Pa_to_hPa: 0.01, Kg_to_g: 1000
         };
 
-        // Функция для красивого отображения больших чисел (научный формат)
+        // Функция для красивого отображения больших чисел
         function formatScientific(value, digits = 2) {
             if (value === 0) return '0';
             if (Math.abs(value) >= 10000 || (Math.abs(value) < 0.001 && Math.abs(value) > 0)) {
@@ -301,17 +329,24 @@
                 const p_mmH2O = p_Pa * CONST.Pa_to_mmH2O;
                 const p_hPa = p_Pa * CONST.Pa_to_hPa;
                 const rho_gcm3 = rho / CONST.Kg_to_g;
-                return { h, T_C: T_K - CONST.T_0, T_K, p_hPa, p_mmHg, p_mmH2O, rho, rho_gcm3, sound };
+                return { h, T_C: T_K - CONST.T_0, T_K, p_Pa, p_hPa, p_mmHg, p_mmH2O, rho, rho_gcm3, sound };
             });
             
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             rawData.forEach(row => {
                 const tr = document.createElement('tr');
+                
+                let pressDisplay;
+                if (currentPressUnit === 'hPa') pressDisplay = row.p_hPa.toFixed(2);
+                else if (currentPressUnit === 'mmHg') pressDisplay = row.p_mmHg.toFixed(2);
+                else if (currentPressUnit === 'mmH2O') pressDisplay = row.p_mmH2O.toFixed(2);
+                else pressDisplay = row.p_Pa.toFixed(0);
+                
                 tr.innerHTML = `
                     <td class="mono">${row.h.toFixed(0)}</td>
                     <td class="mono">${currentTempUnit === 'C' ? row.T_C.toFixed(1) : row.T_K.toFixed(2)}</td>
-                    <td class="mono">${currentPressUnit === 'hPa' ? row.p_hPa.toFixed(2) : currentPressUnit === 'mmHg' ? row.p_mmHg.toFixed(2) : row.p_mmH2O.toFixed(2)}</td>
+                    <td class="mono">${pressDisplay}</td>
                     <td class="mono">${currentDensUnit === 'kgm3' ? row.rho.toFixed(4) : row.rho_gcm3.toExponential(3)}</td>
                     <td class="mono">${row.sound.toFixed(1)}</td>
                 `;
@@ -322,7 +357,7 @@
         }
 
         function updateCharts(data) {
-            // --- ГРАФИК ТЕМПЕРАТУРЫ (цифры нормальные, не лезут) ---
+            // --- ГРАФИК ТЕМПЕРАТУРЫ ---
             let tempValues, tempLabel, tempXTitle;
             if (currentTempUnit === 'C') {
                 tempValues = data.map(d => d.T_C);
@@ -398,20 +433,20 @@
                 }
             });
 
-            // --- ГРАФИК ДАВЛЕНИЯ (красивый научный формат) ---
-            let pressValues, pressLabel, pressUnitForTitle;
+            // --- ГРАФИК ДАВЛЕНИЯ ---
+            let pressValues, pressLabel;
             if (currentPressUnit === 'hPa') {
                 pressValues = data.map(d => d.p_hPa);
                 pressLabel = 'Давление, гПа';
-                pressUnitForTitle = 'гПа';
             } else if (currentPressUnit === 'mmHg') {
                 pressValues = data.map(d => d.p_mmHg);
                 pressLabel = 'Давление, мм рт.ст.';
-                pressUnitForTitle = 'мм рт.ст.';
-            } else {
+            } else if (currentPressUnit === 'mmH2O') {
                 pressValues = data.map(d => d.p_mmH2O);
                 pressLabel = 'Давление, мм вод.ст.';
-                pressUnitForTitle = 'мм вод.ст.';
+            } else {
+                pressValues = data.map(d => d.p_Pa);
+                pressLabel = 'Давление, Па';
             }
             
             if (pressureChart) pressureChart.destroy();
@@ -479,7 +514,7 @@
                 }
             });
 
-            // --- ГРАФИК ПЛОТНОСТИ (красивый научный формат) ---
+            // --- ГРАФИК ПЛОТНОСТИ ---
             let densValues, densLabel;
             if (currentDensUnit === 'kgm3') {
                 densValues = data.map(d => d.rho);
