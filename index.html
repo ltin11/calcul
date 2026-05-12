@@ -40,9 +40,11 @@
             align-items: center;
             gap: 8px;
         }
-        .logo-lines {
-            width: 280px;
+        .logo-svg {
+            width: 100%;
+            max-width: 400px;
             height: auto;
+            display: block;
         }
         .logo-text {
             color: #fff;
@@ -60,24 +62,11 @@
             font-size: 1.9rem;
             letter-spacing: 0.35rem;
         }
-        .logo {
-    display: block;
-    margin: 20px auto;
-    width: 90vw;
-    max-width: 800px;
-    height: auto;
-}
-
-@media (max-width: 768px) {
-    .logo {
-        max-width: 95vw;
-    }
-}
         
         .header-unit-row { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
         
         @media (max-width: 768px) {
-            .logo-lines { width: 180px; }
+            .logo-svg { max-width: 280px; }
             .logo-top { font-size: 1rem; letter-spacing: 0.15rem; }
             .logo-bottom { font-size: 1.2rem; letter-spacing: 0.2rem; }
             th, td { padding: 0.25rem; font-size: 0.6rem; }
@@ -87,9 +76,18 @@
 </head>
 <body class="min-h-screen" style="background-color: #0a0a0a;">
     <header class="border-b sticky top-0 z-50" style="background-color: #0a0a0a; border-color: #333333;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-28 flex items-center justify-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-center">
             <div class="logo-wrapper">
-                <img src="logo.png" alt="Логотип" class="logo-image">
+                <!-- Встроенный SVG логотип (не требует внешнего файла) -->
+                <svg class="logo-svg" viewBox="0 0 1600 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Верхняя линия дирижабля -->
+                    <path d="M20 140 C260 0 700 0 1020 55 C1250 90 1420 100 1580 30" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Нижняя линия дирижабля -->
+                    <path d="M20 140 C350 -10 900 10 1220 95 C1380 125 1490 135 1580 140" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Текст -->
+                    <text x="800" y="210" text-anchor="middle" fill="white" font-family="'Cormorant Garamond', 'Georgia', serif" font-weight="300" font-size="38" letter-spacing="8">СТРАТОСФЕРНЫЕ</text>
+                    <text x="800" y="240" text-anchor="middle" fill="white" font-family="'Cormorant Garamond', 'Georgia', serif" font-weight="300" font-size="44" letter-spacing="10">СИСТЕМЫ</text>
+                </svg>
             </div>
         </div>
     </header>
