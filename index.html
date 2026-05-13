@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Стратосферные системы | Атмосферный калькулятор ГОСТ 24631-81</title>
     
-    <!-- Подключаем Cormorant Garamond Light -->
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,53 +32,22 @@
         .chart-container { background-color: #111111; border-radius: 0.5rem; padding: 1rem; border: 1px solid #333333; }
         canvas { width: 100% !important; height: 500px !important; }
         
-        /* Логотип */
         .logo-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
         }
-        .logo-lines {
-            width: 280px;
+        .logo-image {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 300px;
             height: auto;
         }
-        .logo-text {
-            color: #fff;
-            text-align: center;
-            font-family: 'Cormorant Garamond', serif;
-            font-weight: 300;
-            line-height: 0.88;
-            text-transform: uppercase;
-        }
-        .logo-top {
-            font-size: 1.6rem;
-            letter-spacing: 0.3rem;
-        }
-        .logo-bottom {
-            font-size: 1.9rem;
-            letter-spacing: 0.35rem;
-        }
-        .logo-image {
-    display: block;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-        }
 
-@media (max-width: 768px) {
-    .logo-image {
-        max-width: 200px;
-        }
-        }
-       
-        .header-unit-row { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
-        
         @media (max-width: 768px) {
-            .logo-lines { width: 180px; }
-            .logo-top { font-size: 1rem; letter-spacing: 0.15rem; }
-            .logo-bottom { font-size: 1.2rem; letter-spacing: 0.2rem; }
+            .logo-image { max-width: 200px; }
             th, td { padding: 0.25rem; font-size: 0.6rem; }
             canvas { height: 350px !important; }
         }
@@ -238,7 +206,6 @@
             Pa_to_hPa: 0.01, Kg_to_g: 1000
         };
 
-        // Функция для красивого отображения больших чисел
         function formatScientific(value, digits = 2) {
             if (value === 0) return '0';
             if (Math.abs(value) >= 10000 || (Math.abs(value) < 0.001 && Math.abs(value) > 0)) {
@@ -437,7 +404,7 @@
                 }
             });
 
-            // --- ГРАФИК ДАВЛЕНИЯ ---
+            // --- ГРАФИК ДАВЛЕНИЯ (РАЗВЁРНУТАЯ ОСЬ X) ---
             let pressValues, pressLabel;
             if (currentPressUnit === 'hPa') {
                 pressValues = data.map(d => d.p_hPa);
@@ -453,14 +420,18 @@
                 pressLabel = 'Давление, Па';
             }
             
+            // Разворачиваем ось X - значения от меньших к большим (слева направо)
+            const reversedPressValues = [...pressValues].reverse();
+            const reversedHeights = [...data.map(d => d.h)].reverse();
+            
             if (pressureChart) pressureChart.destroy();
             pressureChart = new Chart(document.getElementById('pressureChart'), {
                 type: 'line',
                 data: {
-                    labels: pressValues,
+                    labels: reversedPressValues.map(v => formatScientific(v, 2)),
                     datasets: [{
                         label: pressLabel,
-                        data: data.map(d => d.h),
+                        data: reversedHeights,
                         borderColor: '#ff6b1a',
                         backgroundColor: 'rgba(255, 107, 26, 0.1)',
                         borderWidth: 2,
@@ -480,8 +451,9 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    const val = context.label;
-                                    return `${context.dataset.label}: ${formatScientific(parseFloat(val), 2)} | Высота: ${context.parsed.y.toFixed(0)} м`;
+                                    const value = reversedPressValues[context.dataIndex];
+                                    const height = reversedHeights[context.dataIndex];
+                                    return `${context.dataset.label}: ${formatScientific(value, 2)} | Высота: ${height.toFixed(0)} м`;
                                 }
                             },
                             backgroundColor: 'rgba(0,0,0,0.85)',
@@ -492,14 +464,13 @@
                     },
                     scales: {
                         x: { 
-                            type: 'logarithmic',
                             title: { display: true, text: pressLabel, color: '#999' },
                             ticks: { 
                                 color: '#ccc',
-                                callback: function(value) {
-                                    return formatScientific(value, 2);
-                                },
-                                maxTicksLimit: 8
+                                autoSkip: true,
+                                maxTicksLimit: 8,
+                                maxRotation: 45,
+                                minRotation: 45
                             },
                             grid: { color: 'rgba(255,255,255,0.05)' }
                         },
@@ -518,7 +489,7 @@
                 }
             });
 
-            // --- ГРАФИК ПЛОТНОСТИ ---
+            // --- ГРАФИК ПЛОТНОСТИ (РАЗВЁРНУТАЯ ОСЬ X) ---
             let densValues, densLabel;
             if (currentDensUnit === 'kgm3') {
                 densValues = data.map(d => d.rho);
@@ -528,14 +499,18 @@
                 densLabel = 'Плотность, г/см³';
             }
             
+            // Разворачиваем ось X - значения от меньших к большим (слева направо)
+            const reversedDensValues = [...densValues].reverse();
+            const reversedHeightsDens = [...data.map(d => d.h)].reverse();
+            
             if (densityChart) densityChart.destroy();
             densityChart = new Chart(document.getElementById('densityChart'), {
                 type: 'line',
                 data: {
-                    labels: densValues,
+                    labels: reversedDensValues.map(v => formatScientific(v, 3)),
                     datasets: [{
                         label: densLabel,
-                        data: data.map(d => d.h),
+                        data: reversedHeightsDens,
                         borderColor: '#ff6b1a',
                         backgroundColor: 'rgba(255, 107, 26, 0.1)',
                         borderWidth: 2,
@@ -555,8 +530,9 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    const val = context.label;
-                                    return `${context.dataset.label}: ${formatScientific(parseFloat(val), 3)} | Высота: ${context.parsed.y.toFixed(0)} м`;
+                                    const value = reversedDensValues[context.dataIndex];
+                                    const height = reversedHeightsDens[context.dataIndex];
+                                    return `${context.dataset.label}: ${formatScientific(value, 3)} | Высота: ${height.toFixed(0)} м`;
                                 }
                             },
                             backgroundColor: 'rgba(0,0,0,0.85)',
@@ -567,14 +543,13 @@
                     },
                     scales: {
                         x: { 
-                            type: 'logarithmic',
                             title: { display: true, text: densLabel, color: '#999' },
                             ticks: { 
                                 color: '#ccc',
-                                callback: function(value) {
-                                    return formatScientific(value, 3);
-                                },
-                                maxTicksLimit: 8
+                                autoSkip: true,
+                                maxTicksLimit: 8,
+                                maxRotation: 45,
+                                minRotation: 45
                             },
                             grid: { color: 'rgba(255,255,255,0.05)' }
                         },
