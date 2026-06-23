@@ -25,37 +25,47 @@
         .unit-toggle button { transition: all 0.2s; color: #999999; font-size: 0.55rem; padding: 0.2rem 0.35rem; border-radius: 0.25rem; cursor: pointer; background: transparent; border: none; font-weight: 500; white-space: nowrap; }
         .unit-toggle button.active { background-color: #ff6b1a; color: #ffffff; box-shadow: 0 1px 3px rgba(255, 107, 26, 0.3); }
         .table-container { overflow-x: auto; max-height: 500px; overflow-y: auto; border-radius: 0.5rem; border: 1px solid #333333; }
-        table { border-collapse: collapse; width: 100%; min-width: 600px; }
+        table { border-collapse: collapse; width: 100%; min-width: 700px; }
         th { 
             background-color: #1a1a1a; 
             color: #ffffff; 
             font-weight: 600; 
             text-align: center; 
-            padding: 0.5rem 0.3rem; 
-            font-size: 0.7rem; 
+            padding: 0.4rem 0.3rem; 
+            font-size: 0.65rem; 
             border-bottom: 1px solid #333333; 
             position: sticky; 
             top: 0; 
             z-index: 10; 
             vertical-align: middle;
+            height: 60px;
         }
         .th-param {
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             display: block;
-            margin-bottom: 0.2rem;
+            color: #ffffff;
+            line-height: 1.2;
         }
         .th-unit {
             font-weight: 400;
-            font-size: 0.6rem;
+            font-size: 0.5rem;
             color: #ff6b1a;
             display: block;
-            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+        .th-unit-empty {
+            font-weight: 400;
+            font-size: 0.5rem;
+            color: transparent;
+            display: block;
+            line-height: 1.2;
+            height: 1.2em;
         }
         td { 
-            padding: 0.35rem 0.3rem; 
+            padding: 0.35rem 0.25rem; 
             border-bottom: 1px solid #222222; 
-            font-size: 0.7rem; 
+            font-size: 0.65rem; 
             color: #cccccc; 
             font-family: 'JetBrains Mono', monospace; 
             text-align: center; 
@@ -94,13 +104,28 @@
             margin-top: 0.1rem;
         }
 
+        .footer {
+            border-top: 1px solid #333333;
+            padding: 1.5rem 1rem;
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.75rem;
+            background-color: #0a0a0a;
+        }
+        .footer .authors {
+            color: #666666;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
         @media (max-width: 768px) {
             .logo-image { max-width: 200px; }
-            th { padding: 0.35rem 0.2rem; font-size: 0.6rem; }
-            .th-param { font-size: 0.65rem; }
-            .th-unit { font-size: 0.55rem; }
-            td { padding: 0.25rem 0.2rem; font-size: 0.6rem; }
+            th { padding: 0.3rem 0.15rem; font-size: 0.5rem; height: 50px; }
+            .th-param { font-size: 0.6rem; }
+            .th-unit { font-size: 0.45rem; }
+            td { padding: 0.2rem 0.15rem; font-size: 0.5rem; }
             canvas { height: 350px !important; }
+            .footer { font-size: 0.6rem; padding: 1rem; }
         }
     </style>
 </head>
@@ -162,7 +187,8 @@
                     <ul class="space-y-2 text-xs leading-relaxed" style="color: #999999;">
                         <li>• Расчёт по ГОСТ 24631-81 (справочные атмосферы)</li>
                         <li>• Справа — таблица параметров до 80 км с выбранным шагом</li>
-                        <li>• Ниже — графики T(h), P(h), ρ(h)</li>
+                        <li>• Δ = ρ(h) / ρ(0) — относительная плотность</li>
+                        <li>• Ниже — графики T(h), P(h) и ρ(h) до 30 км</li>
                         <li>• Учитываются широтные и сезонные вариации</li>
                     </ul>
                 </div>
@@ -178,17 +204,22 @@
                         <table id="profileTable">
                             <thead>
                                 <tr>
-                                    <th style="min-width: 70px;">Высота<br><span style="font-size:0.55rem; color:#ff6b1a;">(м)</span></th>
+                                    <th style="min-width: 65px;">
+                                        <span class="th-param">Высота</span>
+                                        <span class="th-unit">(м)</span>
+                                    </th>
                                     <th>
                                         <span class="th-param">Температура</span>
-                                        <div class="unit-toggle" id="tempUnitToggle" style="margin-top: 0.2rem;">
+                                        <span class="th-unit"><!-- здесь будут кнопки, но они не вписываются в единую строку, поэтому помещаем их отдельно --></span>
+                                        <div class="unit-toggle" id="tempUnitToggle" style="margin-top: 0.1rem; display: inline-flex;">
                                             <button data-unit="C" class="active">°C</button>
                                             <button data-unit="K">K</button>
                                         </div>
                                     </th>
                                     <th>
                                         <span class="th-param">Давление</span>
-                                        <div class="unit-toggle" id="pressUnitToggle" style="margin-top: 0.2rem;">
+                                        <span class="th-unit"><!-- здесь будут кнопки --></span>
+                                        <div class="unit-toggle" id="pressUnitToggle" style="margin-top: 0.1rem; display: inline-flex;">
                                             <button data-unit="hPa" class="active">гПа</button>
                                             <button data-unit="mmHg">мм рт.ст.</button>
                                             <button data-unit="mmH2O">мм вод.ст.</button>
@@ -197,19 +228,24 @@
                                     </th>
                                     <th>
                                         <span class="th-param">Плотность</span>
-                                        <div class="unit-toggle" id="densUnitToggle" style="margin-top: 0.2rem;">
+                                        <span class="th-unit"><!-- здесь будут кнопки --></span>
+                                        <div class="unit-toggle" id="densUnitToggle" style="margin-top: 0.1rem; display: inline-flex;">
                                             <button data-unit="kgm3" class="active">кг/м³</button>
                                             <button data-unit="gcm3">г/см³</button>
                                         </div>
                                     </th>
-                                    <th style="min-width: 90px;">
+                                    <th style="min-width: 70px;">
+                                        <span class="th-param">Отн. плотность</span>
+                                        <span class="th-unit-empty">&nbsp;</span>
+                                    </th>
+                                    <th style="min-width: 80px;">
                                         <span class="th-param">Скорость звука</span>
                                         <span class="th-unit">(м/с)</span>
                                     </th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
-                                <tr><td colspan="5" class="text-center">Загрузка данных...</td></tr>
+                                <tr><td colspan="6" class="text-center">Загрузка данных...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -228,7 +264,7 @@
                         Температура T(h)
                         <span>°C / K</span>
                     </div>
-                    <canvas id="tempChart" width="600" height="500"></canvas>
+                    <canvas id="temperatureChart" width="600" height="500"></canvas>
                 </div>
                 
                 <div class="chart-container">
@@ -250,6 +286,17 @@
             </div>
         </div>
     </main>
+
+    <footer class="footer">
+        <p class="authors">
+            Проект выполнен студентами МГТУ имени Н.Э.Баумана: 
+            Литвиновым Ильей Максимовичем, 
+            Деркач Владимиром Олеговичем, 
+            Агаповым Александром Юрьевичем, 
+            Рыбаковой Анастасией Романовной, 
+            Тереховым Николаем Дмитриевичем.
+        </p>
+    </footer>
 
     <script>
         const CONST = {
@@ -344,7 +391,7 @@
             const heights = [];
             for (let h = 0; h <= 80000; h += step) heights.push(h);
             
-            const rawData = heights.map(h => {
+            const allData = heights.map(h => {
                 const { T: T_K, p: p_Pa } = getValueFromTable(table, h);
                 const rho = calculateDensity(p_Pa, T_K);
                 const sound = calculateSoundSpeed(T_K);
@@ -354,6 +401,13 @@
                 const rho_gcm3 = rho / CONST.Kg_to_g;
                 return { h, T_C: T_K - CONST.T_0, T_K, p_Pa, p_hPa, p_mmHg, p_mmH2O, rho, rho_gcm3, sound };
             });
+            
+            const rho0 = allData.find(d => d.h === 0)?.rho || 1;
+            
+            const rawData = allData.map(d => ({
+                ...d,
+                relDensity: d.rho / rho0
+            }));
             
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
@@ -371,6 +425,7 @@
                     <td class="mono">${currentTempUnit === 'C' ? row.T_C.toFixed(1) : row.T_K.toFixed(2)}</td>
                     <td class="mono">${pressDisplay}</td>
                     <td class="mono">${currentDensUnit === 'kgm3' ? row.rho.toFixed(4) : row.rho_gcm3.toExponential(3)}</td>
+                    <td class="mono">${row.relDensity.toFixed(4)}</td>
                     <td class="mono">${row.sound.toFixed(1)}</td>
                 `;
                 tbody.appendChild(tr);
@@ -380,241 +435,183 @@
         }
 
         function updateCharts(data) {
+            const filteredData = data.filter(d => d.h <= 30000);
+
+            function niceMin(value, step) {
+                return Math.floor(value / step) * step;
+            }
+
+            function niceMax(value, step) {
+                return Math.ceil(value / step) * step;
+            }
+
+            function createProfileChart(canvasId, oldChart, values, heights, label, formatValue, xMin, xMax, tickStep) {
+                const chartData = values.map((value, index) => ({
+                    x: value,
+                    y: heights[index]
+                }));
+
+                if (oldChart) oldChart.destroy();
+
+                return new Chart(document.getElementById(canvasId), {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: label,
+                            data: chartData,
+                            borderColor: '#ff6b1a',
+                            backgroundColor: 'rgba(255, 107, 26, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#ff6b1a',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 1.5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        parsing: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const point = context.raw;
+                                        return `${label}: ${formatValue(point.x)} | Высота: ${point.y.toFixed(0)} м`;
+                                    }
+                                },
+                                backgroundColor: 'rgba(0,0,0,0.85)',
+                                titleColor: '#ff6b1a',
+                                bodyColor: '#fff'
+                            },
+                            legend: { labels: { color: '#ffffff' } }
+                        },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                title: { display: true, text: label, color: '#999' },
+                                min: xMin,
+                                max: xMax,
+                                ticks: {
+                                    color: '#ccc',
+                                    stepSize: tickStep,
+                                    maxTicksLimit: 8,
+                                    callback: function(value) { return formatValue(value); }
+                                },
+                                grid: { color: 'rgba(255,255,255,0.05)' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Высота (м)', color: '#999' },
+                                ticks: {
+                                    color: '#ccc',
+                                    stepSize: 5000,
+                                    callback: function(value) { return value.toFixed(0); }
+                                },
+                                min: 0,
+                                max: 30000,
+                                grid: { color: 'rgba(255,255,255,0.05)' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const heights = filteredData.map(d => d.h);
+
             // --- ГРАФИК ТЕМПЕРАТУРЫ ---
-            let tempValues, tempLabel;
+            let tempValues, tempLabel, formatTempValue, tempXMin, tempXMax, tempTickStep;
             if (currentTempUnit === 'C') {
-                tempValues = data.map(d => d.T_C);
+                tempValues = filteredData.map(d => d.T_C);
                 tempLabel = 'Температура, °C';
+                formatTempValue = value => Number(value).toFixed(1);
+                tempXMin = niceMin(Math.min(...tempValues), 10);
+                tempXMax = niceMax(Math.max(...tempValues), 10);
+                tempTickStep = 10;
             } else {
-                tempValues = data.map(d => d.T_K);
+                tempValues = filteredData.map(d => d.T_K);
                 tempLabel = 'Температура, K';
+                formatTempValue = value => Number(value).toFixed(0);
+                tempXMin = 0;
+                tempXMax = niceMax(Math.max(...tempValues), 50);
+                tempTickStep = 50;
             }
-            
-            if (tempChart) tempChart.destroy();
-            tempChart = new Chart(document.getElementById('tempChart'), {
-                type: 'line',
-                data: {
-                    labels: tempValues.map(v => v.toFixed(1)),
-                    datasets: [{
-                        label: tempLabel,
-                        data: data.map(d => d.h),
-                        borderColor: '#ff6b1a',
-                        backgroundColor: 'rgba(255, 107, 26, 0.1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        pointHoverRadius: 6,
-                        pointBackgroundColor: '#ff6b1a',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1.5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'nearest', axis: 'x', intersect: true },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.dataset.label}: ${context.label} | Высота: ${context.parsed.y.toFixed(0)} м`;
-                                }
-                            },
-                            backgroundColor: 'rgba(0,0,0,0.85)',
-                            titleColor: '#ff6b1a',
-                            bodyColor: '#fff'
-                        },
-                        legend: { labels: { color: '#ffffff' } }
-                    },
-                    scales: {
-                        x: { 
-                            title: { display: true, text: tempLabel, color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                autoSkip: true,
-                                maxTicksLimit: 8,
-                                maxRotation: 45,
-                                minRotation: 45
-                            },
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        },
-                        y: { 
-                            title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                stepSize: 10000,
-                                callback: function(val) { return val.toFixed(0); }
-                            },
-                            min: 0,
-                            max: 80000,
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        }
-                    }
-                }
-            });
 
-            // --- ГРАФИК ДАВЛЕНИЯ (РАЗВЁРНУТАЯ ОСЬ X) ---
-            let pressValues, pressLabel;
+            tempChart = createProfileChart(
+                'temperatureChart',
+                tempChart,
+                tempValues,
+                heights,
+                tempLabel,
+                formatTempValue,
+                tempXMin,
+                tempXMax,
+                tempTickStep
+            );
+
+            // --- ГРАФИК ДАВЛЕНИЯ ---
+            let pressValues, pressLabel, formatPressValue, pressXMax;
             if (currentPressUnit === 'hPa') {
-                pressValues = data.map(d => d.p_hPa);
+                pressValues = filteredData.map(d => d.p_hPa);
                 pressLabel = 'Давление, гПа';
+                formatPressValue = value => formatScientific(value, 2);
+                pressXMax = niceMax(Math.max(...pressValues), 100);
             } else if (currentPressUnit === 'mmHg') {
-                pressValues = data.map(d => d.p_mmHg);
+                pressValues = filteredData.map(d => d.p_mmHg);
                 pressLabel = 'Давление, мм рт.ст.';
+                formatPressValue = value => formatScientific(value, 2);
+                pressXMax = niceMax(Math.max(...pressValues), 100);
             } else if (currentPressUnit === 'mmH2O') {
-                pressValues = data.map(d => d.p_mmH2O);
+                pressValues = filteredData.map(d => d.p_mmH2O);
                 pressLabel = 'Давление, мм вод.ст.';
+                formatPressValue = value => formatScientific(value, 2);
+                pressXMax = niceMax(Math.max(...pressValues), 2000);
             } else {
-                pressValues = data.map(d => d.p_Pa);
+                pressValues = filteredData.map(d => d.p_Pa);
                 pressLabel = 'Давление, Па';
+                formatPressValue = value => formatScientific(value, 2);
+                pressXMax = niceMax(Math.max(...pressValues), 10000);
             }
-            
-            const reversedPressValues = [...pressValues].reverse();
-            const reversedHeights = [...data.map(d => d.h)].reverse();
-            
-            if (pressureChart) pressureChart.destroy();
-            pressureChart = new Chart(document.getElementById('pressureChart'), {
-                type: 'line',
-                data: {
-                    labels: reversedPressValues.map(v => formatScientific(v, 2)),
-                    datasets: [{
-                        label: pressLabel,
-                        data: reversedHeights,
-                        borderColor: '#ff6b1a',
-                        backgroundColor: 'rgba(255, 107, 26, 0.1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        pointHoverRadius: 6,
-                        pointBackgroundColor: '#ff6b1a',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1.5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const value = reversedPressValues[context.dataIndex];
-                                    const height = reversedHeights[context.dataIndex];
-                                    return `${context.dataset.label}: ${formatScientific(value, 2)} | Высота: ${height.toFixed(0)} м`;
-                                }
-                            },
-                            backgroundColor: 'rgba(0,0,0,0.85)',
-                            titleColor: '#ff6b1a',
-                            bodyColor: '#fff'
-                        },
-                        legend: { labels: { color: '#ffffff' } }
-                    },
-                    scales: {
-                        x: { 
-                            title: { display: true, text: pressLabel, color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                autoSkip: true,
-                                maxTicksLimit: 8,
-                                maxRotation: 45,
-                                minRotation: 45
-                            },
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        },
-                        y: { 
-                            title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                stepSize: 10000,
-                                callback: function(val) { return val.toFixed(0); }
-                            },
-                            min: 0,
-                            max: 80000,
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        }
-                    }
-                }
-            });
 
-            // --- ГРАФИК ПЛОТНОСТИ (РАЗВЁРНУТАЯ ОСЬ X) ---
-            let densValues, densLabel;
+            pressureChart = createProfileChart(
+                'pressureChart',
+                pressureChart,
+                pressValues,
+                heights,
+                pressLabel,
+                formatPressValue,
+                0,
+                pressXMax,
+                undefined
+            );
+
+            // --- ГРАФИК ПЛОТНОСТИ ---
+            let densValues, densLabel, formatDensValue, densXMax;
             if (currentDensUnit === 'kgm3') {
-                densValues = data.map(d => d.rho);
+                densValues = filteredData.map(d => d.rho);
                 densLabel = 'Плотность, кг/м³';
+                formatDensValue = value => Number(value).toFixed(3);
+                densXMax = niceMax(Math.max(...densValues), 0.2);
             } else {
-                densValues = data.map(d => d.rho_gcm3);
+                densValues = filteredData.map(d => d.rho_gcm3);
                 densLabel = 'Плотность, г/см³';
+                formatDensValue = value => Number(value).toExponential(2);
+                densXMax = niceMax(Math.max(...densValues), 0.0002);
             }
-            
-            const reversedDensValues = [...densValues].reverse();
-            const reversedHeightsDens = [...data.map(d => d.h)].reverse();
-            
-            if (densityChart) densityChart.destroy();
-            densityChart = new Chart(document.getElementById('densityChart'), {
-                type: 'line',
-                data: {
-                    labels: reversedDensValues.map(v => formatScientific(v, 3)),
-                    datasets: [{
-                        label: densLabel,
-                        data: reversedHeightsDens,
-                        borderColor: '#ff6b1a',
-                        backgroundColor: 'rgba(255, 107, 26, 0.1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        pointHoverRadius: 6,
-                        pointBackgroundColor: '#ff6b1a',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1.5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const value = reversedDensValues[context.dataIndex];
-                                    const height = reversedHeightsDens[context.dataIndex];
-                                    return `${context.dataset.label}: ${formatScientific(value, 3)} | Высота: ${height.toFixed(0)} м`;
-                                }
-                            },
-                            backgroundColor: 'rgba(0,0,0,0.85)',
-                            titleColor: '#ff6b1a',
-                            bodyColor: '#fff'
-                        },
-                        legend: { labels: { color: '#ffffff' } }
-                    },
-                    scales: {
-                        x: { 
-                            title: { display: true, text: densLabel, color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                autoSkip: true,
-                                maxTicksLimit: 8,
-                                maxRotation: 45,
-                                minRotation: 45
-                            },
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        },
-                        y: { 
-                            title: { display: true, text: 'Высота (м)', color: '#999' },
-                            ticks: { 
-                                color: '#ccc',
-                                stepSize: 10000,
-                                callback: function(val) { return val.toFixed(0); }
-                            },
-                            min: 0,
-                            max: 80000,
-                            grid: { color: 'rgba(255,255,255,0.05)' }
-                        }
-                    }
-                }
-            });
+
+            densityChart = createProfileChart(
+                'densityChart',
+                densityChart,
+                densValues,
+                heights,
+                densLabel,
+                formatDensValue,
+                0,
+                densXMax,
+                undefined
+            );
         }
 
         document.getElementById('tempUnitToggle').addEventListener('click', (e) => {
